@@ -1,15 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class Player
-{
-    public static int position;
-    public static int direction;
-    public static GameObject playerObject;
-
-}
-
+/*
 public class Parabola
 {
     readonly float heigh;
@@ -28,16 +20,62 @@ public class Parabola
         target.position = Vector3.Lerp(target.position, new Vector3(target_X, target_Y, target_Z), 1f);
     }
 }
+*/
+
+public class Parabola
+{
+    readonly float heigh;
+    
+
+    public Parabola(float heigh)
+    {
+        this.heigh = heigh;
+    }
+
+    public void Move(Transform target, Vector3 a, Vector3 b, float time)
+    {
+
+        float lenght = Mathf.Abs(a.x - b.x);
+        float distance;
+
+
+        if(target.GetComponent<PlayerManage>().GetDirection() == 0 || target.GetComponent<PlayerManage>().GetDirection() == 2)
+        {
+            lenght = Mathf.Abs(a.x - b.x);
+            distance = Mathf.Abs(target.transform.position.x - b.x);
+        } else
+        {
+            lenght = Mathf.Abs(a.z - b.z);
+            distance = Mathf.Abs(target.transform.position.z - b.z);
+        }
+
+        if(!target.GetComponent<PlayerManage>().GetIsFalling() && distance < 0.7f * lenght)
+        {
+            target.GetComponent<PlayerManage>().SetDuration(0.2f);
+            target.GetComponent<PlayerManage>().SetIsFalling(true);
+        }
+
+        float target_X = a.x + (b.x - a.x) * time;
+        float target_Y = a.y + ((b.y - a.y)) * time + heigh * (1 - (Mathf.Abs(0.5f - time) / 0.5f) * (Mathf.Abs(0.5f - time) / 0.5f));
+        float target_Z = a.z + (b.z - a.z) * time;
+
+        target.position = Vector3.Lerp(target.position, new Vector3(target_X, target_Y, target_Z), 1f);
+    }
+}
 
 public class PlayerManage : MonoBehaviour
 {
+    public static int playerPosition;
+    public static int playerDirection;
+    public static GameObject playerObject;
+
     private PlayerAction playerAction;
 
     private Parabola p;
     private Vector3 startPos;
     private Vector3 endPos;
     private float preTime;
-    private bool onMove = false;
+    private static bool onMove = false;
     private Quaternion rotateEnd;
     private bool isEnd = false;
 
@@ -54,14 +92,37 @@ public class PlayerManage : MonoBehaviour
     [SerializeField]
     private float duration;
 
-    public void SetIsEndTrue()
+    private bool isJump = false;
+    private bool isFalling = false;
+
+    public void SetDuration(float duration)
     {
-        isEnd = true;
+        this.duration = duration;
+    }
+
+    public float GetPreTime()
+    {
+        return this.preTime;
+    }
+
+    public int GetDirection()
+    {
+        return playerDirection;
+    }
+
+    public bool GetIsFalling()
+    {
+        return isFalling;
+    }
+
+    public void SetIsFalling(bool isFalling)
+    {
+        this.isFalling = isFalling;
     }
 
     void Awake()
     {
-        Player.playerObject = this.gameObject;
+        playerObject = this.gameObject;
 
         playerAction = new PlayerAction();
     }
@@ -78,6 +139,12 @@ public class PlayerManage : MonoBehaviour
 
     void GoUP()
     {
+        isJump = true;
+
+        isFalling = false;
+
+        duration = 0.6f;
+
 
         if (!isEnd)
         {
@@ -88,51 +155,51 @@ public class PlayerManage : MonoBehaviour
 
             onMove = true;
 
-            if (Player.direction == 0)
+            if (playerDirection == 0)
 
-                Player.position -= 35;
-
-
-            else if (Player.direction == 1)
-
-                Player.position -= 1;
+                playerPosition -= 35;
 
 
-            else if (Player.direction == 2)
+            else if (playerDirection == 1)
 
-                Player.position += 35;
+                playerPosition -= 1;
 
 
-            else if (Player.direction == 3)
+            else if (playerDirection == 2)
 
-                Player.position += 1;
+                playerPosition += 35;
+
+
+            else if (playerDirection == 3)
+
+                playerPosition += 1;
 
             startPos = this.transform.position;
 
-            if (Turtle.GetIndex(Player.position) != -1)
+            if (Turtle.GetIndex(playerPosition) != -1)
             {
-                endPos = Turtle.turtles[Turtle.GetIndex(Player.position)].turtleObject.transform.position
+                endPos = Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.transform.position
                 + new Vector3(0, 0.6f, 0);
 
-                Turtle.goDownList.Add(Turtle.GetIndex(Player.position));
+                Turtle.goDownList.Add(Turtle.GetIndex(playerPosition));
 
-                Turtle.turtles[Turtle.GetIndex(Player.position)].turtleObject.GetComponent<FloatEffect>().enabled = false;
+                Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.GetComponent<FloatEffect>().enabled = false;
 
             }
             else
             {
-                endPos = Box.boxes[Player.position].boxObject.transform.position
+                endPos = Box.boxes[playerPosition].boxObject.transform.position
                 + new Vector3(0, 0.6f, 0);
             }
 
-            if (Box.boxes[Player.position].state == 3)
+            if (Box.boxes[playerPosition].state == 3)
             {
-                endPos = Box.boxes[Player.position].boxObject.transform.position
+                endPos = Box.boxes[playerPosition].boxObject.transform.position
                     + new Vector3(0, -1f, 0);
 
                 isEnd = true;
             }
-
+            
         }
     }
 
@@ -140,27 +207,27 @@ public class PlayerManage : MonoBehaviour
     {
         if (!isEnd)
         {
-            if (Player.direction == 0)
+            if (playerDirection == 0)
             {
-                Player.direction = 3;
+                playerDirection = 3;
                 rotateEnd = Quaternion.Euler(0, 0, 0);
             }
 
-            else if (Player.direction == 1)
+            else if (playerDirection == 1)
             {
-                Player.direction = 0;
+                playerDirection = 0;
                 rotateEnd = Quaternion.Euler(0, 90, 0);
             }
 
-            else if (Player.direction == 2)
+            else if (playerDirection == 2)
             {
-                Player.direction = 1;
+                playerDirection = 1;
                 rotateEnd = Quaternion.Euler(0, 180, 0);
             }
 
-            else if (Player.direction == 3)
+            else if (playerDirection == 3)
             {
-                Player.direction = 2;
+                playerDirection = 2;
                 rotateEnd = Quaternion.Euler(0, 270, 0);
             }
         }
@@ -170,27 +237,27 @@ public class PlayerManage : MonoBehaviour
     {
         if (!isEnd)
         {
-            if (Player.direction == 0)
+            if (playerDirection == 0)
             {
-                Player.direction = 1;
+                playerDirection = 1;
                 rotateEnd = Quaternion.Euler(0, 180, 0);
             }
 
-            else if (Player.direction == 1)
+            else if (playerDirection == 1)
             {
-                Player.direction = 2;
+                playerDirection = 2;
                 rotateEnd = Quaternion.Euler(0, 270, 0);
             }
 
-            else if (Player.direction == 2)
+            else if (playerDirection == 2)
             {
-                Player.direction = 3;
+                playerDirection = 3;
                 rotateEnd = Quaternion.Euler(0, 0, 0);
             }
 
-            else if (Player.direction == 3)
+            else if (playerDirection == 3)
             {
-                Player.direction = 0;
+                playerDirection = 0;
                 rotateEnd = Quaternion.Euler(0, 90, 0);
             }
         }
@@ -223,25 +290,25 @@ public class PlayerManage : MonoBehaviour
             temp = Random.Range(0, 420);
         } while (Box.boxes[temp].state != 0);
 
-        Player.position = Box.boxes[temp].position;
-        Player.direction = Random.Range(0, 4);
+        playerPosition = Box.boxes[temp].position;
+        playerDirection = Random.Range(0, 4);
 
         this.transform.position = Box.boxes[temp].boxObject.transform.position
             + new Vector3(0, 0.6f, 0.05f);
 
-        if (Player.direction == 0)
+        if (playerDirection == 0)
         {
             transform.eulerAngles = new Vector3(0, 90, 0);
         }
-        else if (Player.direction == 1)
+        else if (playerDirection == 1)
         {
             transform.eulerAngles = new Vector3(0, 180, 0);
         }
-        else if (Player.direction == 2)
+        else if (playerDirection == 2)
         {
             transform.eulerAngles = new Vector3(0, 270, 0);
         }
-        else if (Player.direction == 3)
+        else if (playerDirection == 3)
         {
             transform.eulerAngles = new Vector3(0, 0, 0);
         }
@@ -251,9 +318,12 @@ public class PlayerManage : MonoBehaviour
     {
         if (onMove && preTime == 0) preTime = Time.time;
 
-        if (!onMove) SetJump();
-
-        Jump();
+        if (!onMove)
+        {
+            isJump = false;
+            SetJump();
+        }
+        else if (isJump) Jump();
 
     }
 
@@ -261,7 +331,7 @@ public class PlayerManage : MonoBehaviour
     {
         preTime = 0;
 
-        if (Turtle.GetIndex(Player.position) != -1)
+        if (Turtle.GetIndex(playerPosition) != -1)
         {
             JumpOnTurtle();
 
@@ -275,15 +345,15 @@ public class PlayerManage : MonoBehaviour
     private void JumpOnTurtle()
     {
         if(!isEnd)
-            transform.position = Vector3.Lerp(transform.position, Turtle.turtles[Turtle.GetIndex(Player.position)].turtleObject.transform.position
-            + new Vector3(0, 0.6f, 0.05f), Time.fixedDeltaTime * 10f);
+            transform.position = Vector3.Lerp(transform.position, Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.transform.position
+            + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
     }
 
     private void JumpOnBox()
     {
         if (!isEnd)
-            transform.position = Vector3.Lerp(transform.position, Box.boxes[Player.position].boxObject.transform.position
-            + new Vector3(0, 0.6f, 0.05f), Time.fixedDeltaTime * 10f);
+            transform.position = Vector3.Lerp(transform.position, Box.boxes[playerPosition].boxObject.transform.position
+            + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
 
     }
 
@@ -291,12 +361,14 @@ public class PlayerManage : MonoBehaviour
     {
         if ((((Time.time - preTime) / duration) <= 1) && onMove)
         {
-            p.Move(this.transform, startPos, endPos, (Time.fixedTime - preTime) / duration);
+
+            p.Move(this.transform, startPos, endPos, (Time.time - preTime) / duration);
         }
         else
         {
             onMove = false;
             preTime = 0;
+
         }
     }
 
@@ -311,11 +383,11 @@ public class PlayerManage : MonoBehaviour
             isEndSound = true;
         }
 
-        if (Box.boxes[Player.position].state != 4 &&
-            Box.boxes[Player.position].state != 3 &&
-            Box.boxes[Player.position].boxObject.transform.position.y < -.7f)
+        if (Box.boxes[playerPosition].state != 4 &&
+            Box.boxes[playerPosition].state != 3 &&
+            Box.boxes[playerPosition].boxObject.transform.position.y < -.7f)
         {
-            endPos = Box.boxes[Player.position].boxObject.transform.position
+            endPos = Box.boxes[playerPosition].boxObject.transform.position
                     + new Vector3(0, -1f, 0);
 
             isEnd = true;
@@ -323,13 +395,15 @@ public class PlayerManage : MonoBehaviour
 
         if(isEnd && !onMove)
         {
-            transform.position = Vector3.Lerp(transform.position, Box.boxes[Player.position].boxObject.transform.position
-            + new Vector3(0, -2f, 0.05f), Time.fixedDeltaTime * 1f);
+            transform.position = Vector3.Lerp(transform.position, Box.boxes[playerPosition].boxObject.transform.position
+            + new Vector3(0, -2f, 0.05f), Time.deltaTime * 1f);
         }
     }
 
     void Start()
     {
+        Application.targetFrameRate = 60;
+
         SetStartPosition();
 
         rotateEnd = transform.rotation;
@@ -345,13 +419,9 @@ public class PlayerManage : MonoBehaviour
 
         CheckIfEnd();
 
-    }
-
-
-    void FixedUpdate()
-    {
         CheckIfMoveAviable();
 
-        transform.rotation = Quaternion.Lerp(transform.rotation, rotateEnd, 5f * Time.fixedDeltaTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotateEnd, 5f * Time.deltaTime);
+
     }
 }
