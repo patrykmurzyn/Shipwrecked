@@ -19,7 +19,7 @@ public class FloatEffect : MonoBehaviour
 
     }
 
-    void FixedUpdate()
+    void Update()
     {
             if (mode == 0)
             {

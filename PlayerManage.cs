@@ -1,67 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-/*
-public class Parabola
-{
-    readonly float heigh;
-
-    public Parabola(float heigh)
-    {
-        this.heigh = heigh;
-    }
-
-    public void Move(Transform target, Vector3 a, Vector3 b, float time)
-    {
-        float target_X = a.x + (b.x - a.x) * time;
-        float target_Y = a.y + ((b.y - a.y)) * time + heigh * (1 - (Mathf.Abs(0.5f - time) / 0.5f) * (Mathf.Abs(0.5f - time) / 0.5f));
-        float target_Z = a.z + (b.z - a.z) * time;
-
-        target.position = Vector3.Lerp(target.position, new Vector3(target_X, target_Y, target_Z), 1f);
-    }
-}
-*/
-
-public class Parabola
-{
-    readonly float heigh;
-    
-
-    public Parabola(float heigh)
-    {
-        this.heigh = heigh;
-    }
-
-    public void Move(Transform target, Vector3 a, Vector3 b, float time)
-    {
-
-        float lenght = Mathf.Abs(a.x - b.x);
-        float distance;
-
-
-        if(target.GetComponent<PlayerManage>().GetDirection() == 0 || target.GetComponent<PlayerManage>().GetDirection() == 2)
-        {
-            lenght = Mathf.Abs(a.x - b.x);
-            distance = Mathf.Abs(target.transform.position.x - b.x);
-        } else
-        {
-            lenght = Mathf.Abs(a.z - b.z);
-            distance = Mathf.Abs(target.transform.position.z - b.z);
-        }
-
-        if(!target.GetComponent<PlayerManage>().GetIsFalling() && distance < 0.7f * lenght)
-        {
-            target.GetComponent<PlayerManage>().SetDuration(0.2f);
-            target.GetComponent<PlayerManage>().SetIsFalling(true);
-        }
-
-        float target_X = a.x + (b.x - a.x) * time;
-        float target_Y = a.y + ((b.y - a.y)) * time + heigh * (1 - (Mathf.Abs(0.5f - time) / 0.5f) * (Mathf.Abs(0.5f - time) / 0.5f));
-        float target_Z = a.z + (b.z - a.z) * time;
-
-        target.position = Vector3.Lerp(target.position, new Vector3(target_X, target_Y, target_Z), 1f);
-    }
-}
 
 public class PlayerManage : MonoBehaviour
 {
@@ -77,7 +16,7 @@ public class PlayerManage : MonoBehaviour
     private float preTime;
     private static bool onMove = false;
     private Quaternion rotateEnd;
-    private bool isEnd = false;
+    private static bool isEnd = false;
 
     [SerializeField]
     private AudioClip jumpSound;
@@ -100,9 +39,9 @@ public class PlayerManage : MonoBehaviour
         this.duration = duration;
     }
 
-    public float GetPreTime()
+    public static void SetIsEnd(bool option)
     {
-        return this.preTime;
+        isEnd = option;
     }
 
     public int GetDirection()
@@ -137,7 +76,7 @@ public class PlayerManage : MonoBehaviour
         playerAction.Disable();
     }
 
-    void GoUP()
+    public void GoUP()
     {
         isJump = true;
 
@@ -203,7 +142,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    void GoLeft()
+    public void GoLeft()
     {
         if (!isEnd)
         {
@@ -233,7 +172,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    void GoRight()
+    public void GoRight()
     {
         if (!isEnd)
         {
@@ -314,7 +253,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    private void CheckIfMoveAviable()
+    public void CheckIfMoveAviable()
     {
         if (onMove && preTime == 0) preTime = Time.time;
 
@@ -327,7 +266,7 @@ public class PlayerManage : MonoBehaviour
 
     }
 
-    private void SetJump()
+    public void SetJump()
     {
         preTime = 0;
 
@@ -342,14 +281,14 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    private void JumpOnTurtle()
+    public void JumpOnTurtle()
     {
         if(!isEnd)
             transform.position = Vector3.Lerp(transform.position, Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.transform.position
             + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
     }
 
-    private void JumpOnBox()
+    public void JumpOnBox()
     {
         if (!isEnd)
             transform.position = Vector3.Lerp(transform.position, Box.boxes[playerPosition].boxObject.transform.position
@@ -357,7 +296,7 @@ public class PlayerManage : MonoBehaviour
 
     }
 
-    private void Jump()
+    public void Jump()
     {
         if ((((Time.time - preTime) / duration) <= 1) && onMove)
         {
@@ -372,7 +311,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    void CheckIfEnd()
+    private void CheckIfEnd()
     {
         if (this.transform.position.y <= -.3f && !isEndSound)
         {
@@ -402,7 +341,7 @@ public class PlayerManage : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = 61;
 
         SetStartPosition();
 

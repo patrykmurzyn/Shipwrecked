@@ -8,6 +8,32 @@ public class Enemy
     public int direction;
     public GameObject enemyObject;
     public static List<Enemy> enemies = new List<Enemy>();
+
+    public bool IsEnemyOnPosition(int position)
+    {
+        bool isFound = false;
+
+        for(int i = 0; i < enemies.Count; i++)
+        {
+            if (position == enemies[i].position) isFound = true;
+        }
+
+        return isFound;
+    }
+
+    public int GetDirection()
+    {
+        return direction;
+    }
+
+    public static bool CheckIfEnemyOnPosition(int position)
+    {
+        for(int i = 0; i < enemies.Count; i++)
+        {
+            if(enemies[i].position == position) return true;
+        }
+        return false;
+    }
 }
 
 public class EnemyManage : MonoBehaviour
@@ -37,10 +63,8 @@ public class EnemyManage : MonoBehaviour
             {
                 temp = Random.Range(0, 420);
 
-                
-
             } while (Box.boxes[temp].state != 0 ||
-            Vector3.Distance(Player.playerObject.transform.position, Box.boxes[temp].boxObject.transform.position) < 12);
+            Vector3.Distance(PlayerManage.playerObject.transform.position, Box.boxes[temp].boxObject.transform.position) < 12);
 
             Enemy.enemies[i].enemyObject.transform.position = Box.boxes[temp].boxObject.transform.position
             + new Vector3(0, 0.6f, 0.05f);
@@ -48,6 +72,8 @@ public class EnemyManage : MonoBehaviour
             Enemy.enemies[i].position = Box.boxes[temp].position;
 
             Enemy.enemies[i].direction = Random.Range(0, 4);
+
+            Box.boxes[temp].state = 5;
 
             if (Enemy.enemies[i].direction == 0)
             {

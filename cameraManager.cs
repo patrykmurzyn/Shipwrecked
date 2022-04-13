@@ -42,35 +42,33 @@ public class cameraManager : MonoBehaviour
 
     void Update()
     {
-        if (Player.direction == 0)
+
+        if (PlayerManage.playerDirection == 0)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset0;
             rotation = rot0;
         }
 
-        if (Player.direction == 1)
+        if (PlayerManage.playerDirection == 1)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset1;
             rotation = rot1;
         }
 
-        if (Player.direction == 2)
+        if (PlayerManage.playerDirection == 2)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset2;
             rotation = rot2;
         }
 
-        if (Player.direction == 3)
+        if (PlayerManage.playerDirection == 3)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset3;
             rotation = rot3;
         }
-    }
 
-    private void FixedUpdate()
-    {
-        transform.position = Vector3.Lerp(transform.position, endPos, positionSpeed * Time.fixedDeltaTime);
+        transform.position = Vector3.Lerp(transform.position, endPos, positionSpeed * Time.deltaTime);
 
-        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, rotationSpeed * Time.fixedDeltaTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);
     }
 }

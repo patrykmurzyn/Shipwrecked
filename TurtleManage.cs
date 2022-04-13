@@ -73,7 +73,6 @@ public class TurtleManage : MonoBehaviour
     {
         for (int i = 0; i < Turtle.goDownList.Count; i++)
         {
-
             Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position =
                 Vector3.Lerp(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position,
                 new Vector3(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.x, -2f, Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.z),
@@ -81,7 +80,6 @@ public class TurtleManage : MonoBehaviour
 
             if(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.y < -.8f)
             {
-
                 Turtle.goUpList.Add(Turtle.goDownList[i]);
 
                 int temp;
@@ -101,6 +99,13 @@ public class TurtleManage : MonoBehaviour
                 Turtle.turtles[Turtle.goDownList[i]].position = Box.availableBoxesPosition[temp];
 
                 Turtle.goDownList.RemoveAt(i);
+
+
+                if (Box.boxes[PlayerManage.playerPosition].state == 3)
+                {
+                    PlayerManage.SetIsEnd(true);
+                }
+
             }
         }
     }
@@ -131,7 +136,7 @@ public class TurtleManage : MonoBehaviour
         SetTurtles();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         GoDown();
 

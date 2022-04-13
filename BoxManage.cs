@@ -51,11 +51,12 @@ public class BoxManage : MonoBehaviour
 
             countPosition++;
         }
-
+        
         int randMin = 0;
         int randMax = 3;
 
-        for (int i = 0; i < Box.destroyAmmount; i++)
+        //for (int i = 0; i < Box.destroyAmmount; i++)
+        for (int i = 0; i < 50; i++)
         {
             int rand = Random.Range(randMin, randMax);
 
@@ -72,6 +73,7 @@ public class BoxManage : MonoBehaviour
             randMax += 3;
 
         }
+        
     }
 
     void SetDownUp()
@@ -128,14 +130,12 @@ public class BoxManage : MonoBehaviour
             box.boxObject.transform.position =
             Vector3.Lerp(box.boxObject.transform.position,
             new Vector3(box.boxObject.transform.position.x, -.9f, box.boxObject.transform.position.z),
-            0.3f * Time.fixedDeltaTime);
+            0.3f * Time.deltaTime);
 
             if (box.boxObject.transform.position.y <= -.8f)
             {
 
                 goDownList.RemoveAt(index);
-
-                
 
                 box.state = 3;
             }
@@ -149,7 +149,7 @@ public class BoxManage : MonoBehaviour
             box.boxObject.transform.position =
             Vector3.Lerp(box.boxObject.transform.position,
             new Vector3(box.boxObject.transform.position.x, -0.2f, box.boxObject.transform.position.z),
-            0.3f * Time.fixedDeltaTime);
+            0.3f * Time.deltaTime);
 
             if (box.boxObject.transform.position.y >= -0.3f)
             {
@@ -193,16 +193,11 @@ public class BoxManage : MonoBehaviour
 
     private void Update()
     {
+        time += Time.deltaTime;
+
+        //SetDownUp();
 
         SetDifficulty();
-
-    }
-
-    void FixedUpdate()
-    {
-        time += Time.fixedDeltaTime;
-
-        SetDownUp();
 
     }
 }
