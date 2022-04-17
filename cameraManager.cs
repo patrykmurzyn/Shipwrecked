@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class cameraManager : MonoBehaviour
@@ -40,28 +38,28 @@ public class cameraManager : MonoBehaviour
     private Vector3 endPos;
     private Quaternion rotation;
 
-    void Update()
+    private void Update()
     {
 
-        if (PlayerManage.playerDirection == 0)
+        if (PlayerManage.GetPlayerDirection() == 0)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset0;
             rotation = rot0;
         }
 
-        if (PlayerManage.playerDirection == 1)
+        if (PlayerManage.GetPlayerDirection() == 1)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset1;
             rotation = rot1;
         }
 
-        if (PlayerManage.playerDirection == 2)
+        if (PlayerManage.GetPlayerDirection() == 2)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset2;
             rotation = rot2;
         }
 
-        if (PlayerManage.playerDirection == 3)
+        if (PlayerManage.GetPlayerDirection() == 3)
         {
             endPos = new Vector3(target.position.x, 1.5f, target.position.z) + offset3;
             rotation = rot3;

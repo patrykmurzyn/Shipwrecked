@@ -1,53 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-public class Box
-{
-    public int position;
-    public int state; // 0 - good, 1 - go down, 2 - go up, 3 - down, 4 - turtle, 5 - enemie
-    public GameObject boxObject;
-
-    public static List<Box> boxes = new List<Box>();
-    public static List<int> availableBoxesPosition = new List<int>();
-    public static List<int> destroyedBoxesPosition = new List<int>();
-
-    public static int destroyAmmount = 140;
-
-}
 
 public class BoxManage : MonoBehaviour
 {
-    float time = 0;
-    float requireTime = 3f;
-    float difficulty = 0.3f;
+    private float time = 0;
+    private float requireTime = 3f;
+    private float difficulty = 0.3f;
+    
+    public float GetDifficulty()
+    {
+        return difficulty;
+    }
 
-    List<int> goDownList = new List<int>();
-    List<int> goUpList = new List<int>();
-
-    void CreateBoxesList()
+    private void CreateBoxesList()
     {
         int countPosition = 0;
 
         foreach (Transform i in transform)
         {
-            Box temp = new Box()
-            {
-                position = countPosition,
+            Box temp = new Box();
 
-                state = 3,
+            temp.SetPosition(countPosition);
 
-                boxObject = i.gameObject
-            };
+            temp.SetState(3);
+
+            temp.SetBoxObject(i.gameObject);
+            
 
             if(i.gameObject.activeSelf)
             {
-                Box.availableBoxesPosition.Add(countPosition);
+                Box.AddAvailableBoxesPosition(countPosition);
 
-                temp.state = 0;
+                temp.SetState(0);
             }
 
-            Box.boxes.Add(temp);
+            Box.AddBoxes(temp);
 
             countPosition++;
         }
@@ -55,19 +41,20 @@ public class BoxManage : MonoBehaviour
         int randMin = 0;
         int randMax = 3;
 
-        //for (int i = 0; i < Box.destroyAmmount; i++)
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < Box.GetDestroyAmmount(); i++)
         {
             int rand = Random.Range(randMin, randMax);
 
-            Box.destroyedBoxesPosition.Add(Box.availableBoxesPosition[rand]);
+            Box.AddDestroyedBoxesPosition(Box.GetAvailableBoxesPosition(rand));
 
-            Box.boxes[Box.destroyedBoxesPosition[i]].state = 3;
+            Box.GetBoxes(Box.GetDestroyedBoxesPosition(i)).SetState(3);
 
-            Box.boxes[Box.destroyedBoxesPosition[i]].boxObject.transform.position =
-                new Vector3(Box.boxes[Box.destroyedBoxesPosition[i]].boxObject.transform.position.x, -.8f, Box.boxes[Box.destroyedBoxesPosition[i]].boxObject.transform.position.z);
+            Box.GetBoxes(Box.GetDestroyedBoxesPosition(i)).GetBoxObject().transform.position =
+                new Vector3(Box.GetBoxes(Box.GetDestroyedBoxesPosition(i)).GetBoxObject().transform.position.x, 
+                -.8f, 
+                Box.GetBoxes(Box.GetDestroyedBoxesPosition(i)).GetBoxObject().transform.position.z);
             
-            Box.boxes[Box.destroyedBoxesPosition[i]].boxObject.GetComponent<FloatEffect>().enabled = false;
+            Box.GetBoxes(Box.GetDestroyedBoxesPosition(i)).GetBoxObject().GetComponent<FloatEffect>().enabled = false;
             
             randMin += 3;
             randMax += 3;
@@ -76,7 +63,7 @@ public class BoxManage : MonoBehaviour
         
     }
 
-    void SetDownUp()
+    private void SetDownUp()
     {
 
         if(time >= requireTime)
@@ -86,105 +73,129 @@ public class BoxManage : MonoBehaviour
                 do
                 {
                     temp = Random.Range(0, 420);
-                } while (Box.boxes[Box.availableBoxesPosition[temp]].state != 0);
+                } while (Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetState() != 0
+                    && Enemy.GetEnemies(0).GetPosition() != temp
+                    && Enemy.GetEnemies(1).GetPosition() != temp
+                    && Enemy.GetEnemies(2).GetPosition() != temp
+                    && Enemy.GetEnemies(3).GetPosition() != temp);
 
-                goDownList.Add(Box.availableBoxesPosition[temp]);
+            Box.AddGoDownList(Box.GetAvailableBoxesPosition(temp));
 
-                Box.destroyedBoxesPosition.Add(Box.availableBoxesPosition[temp]);
+                Box.AddDestroyedBoxesPosition(Box.GetAvailableBoxesPosition(temp));
 
-                Box.boxes[Box.availableBoxesPosition[temp]].state = 1;
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).SetState(1);
 
-                Box.boxes[Box.availableBoxesPosition[temp]].boxObject.GetComponent<FloatEffect>().enabled = false;
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().GetComponent<FloatEffect>().enabled = false;
 
                 do
                 {
                     temp = Random.Range(0, 420);
-                } while (Box.boxes[Box.availableBoxesPosition[temp]].state != 3);
+                } while (Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetState() != 3);
 
-                goUpList.Add(Box.availableBoxesPosition[temp]);
+                Box.AddGoUpList(Box.GetAvailableBoxesPosition(temp));
 
-                Box.destroyedBoxesPosition.Remove(Box.availableBoxesPosition[temp]);
+                Box.RemoveDestroyedBoxesPosition(Box.GetAvailableBoxesPosition(temp));
 
-                Box.boxes[Box.availableBoxesPosition[temp]].state = 2;
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).SetState(2);
 
             
 
             requireTime += difficulty;
         }
 
-        for (int i = 0; i < goDownList.Count; i++)
+        for (int i = 0; i < Box.GetGoDownListSize(); i++)
         {
-            GoDown(Box.boxes[goDownList[i]], i);
+            GoDown(Box.GetBoxes(Box.GetGoDownList(i)), i);
         }
 
-        for (int i = 0; i < goUpList.Count; i++)
+        for (int i = 0; i < Box.GetGoUpListSize(); i++)
         {
-            GoUp(Box.boxes[goUpList[i]], i);
+            GoUp(Box.GetBoxes(Box.GetGoUpList(i)), i);
         }
     }
 
-    void GoDown(Box box, int index)
+    private void GoDown(Box box, int index)
     {
-        if (box.state == 1)
+        if (box.GetState() == 1)
         {
-            box.boxObject.transform.position =
-            Vector3.Lerp(box.boxObject.transform.position,
-            new Vector3(box.boxObject.transform.position.x, -.9f, box.boxObject.transform.position.z),
-            0.3f * Time.deltaTime);
+            box.GetBoxObject().transform.position =
+                Vector3.Lerp(box.GetBoxObject().transform.position,
+                    new Vector3(box.GetBoxObject().transform.position.x, 
+                    -.9f,
+                    box.GetBoxObject().transform.position.z),
+                0.3f * Time.deltaTime);
 
-            if (box.boxObject.transform.position.y <= -.8f)
+            if (box.GetBoxObject().transform.position.y <= -.8f)
             {
 
-                goDownList.RemoveAt(index);
+                Box.RemoveGoDownListAt(index);
 
-                box.state = 3;
+                box.SetState(3);
             }
         }
     }
 
-    void GoUp(Box box, int index)
+    private void GoUp(Box box, int index)
     {
-        if (box.state == 2)
+        if (box.GetState() == 2)
         {
-            box.boxObject.transform.position =
-            Vector3.Lerp(box.boxObject.transform.position,
-            new Vector3(box.boxObject.transform.position.x, -0.2f, box.boxObject.transform.position.z),
-            0.3f * Time.deltaTime);
+            box.GetBoxObject().transform.position =
+                Vector3.Lerp(box.GetBoxObject().transform.position,
+                    new Vector3(box.GetBoxObject().transform.position.x,
+                    -0.2f,
+                    box.GetBoxObject().transform.position.z),
+                0.3f * Time.deltaTime);
 
-            if (box.boxObject.transform.position.y >= -0.3f)
+            if (box.GetBoxObject().transform.position.y >= -0.3f)
             {
 
-                goUpList.RemoveAt(index);
+                Box.RemoveGoUpListAt(index);
 
-                box.state = 0;
+                box.SetState(0);
 
-                box.boxObject.GetComponent<FloatEffect>().SetStartY(box.boxObject.transform.position.y);
-                box.boxObject.GetComponent<FloatEffect>().enabled = true;
+                box.GetBoxObject().GetComponent<FloatEffect>().SetStartY(box.GetBoxObject().transform.position.y);
+                box.GetBoxObject().GetComponent<FloatEffect>().enabled = true;
 
             }
 
         }
     }
 
-    void SetDifficulty()
+    private void SetDifficulty()
     {
-        if (time >= 20 && time < 40) difficulty = 0.27f;
+        if (time >= 20 && time < 40)
+        {
+            difficulty = 0.27f;
+        }
+        else if (time >= 40 && time < 60)
+        {
+            difficulty = 0.24f;
+        }
+        else if (time >= 60 && time < 80)
+        {
+            difficulty = 0.21f;
+        }
+        else if (time >= 80 && time < 100)
+        {
+            difficulty = 0.18f;
+        }
+        else if (time >= 100 && time < 120)
+        {
+            difficulty = 0.15f;
+        }
+        else if (time >= 120 && time < 140)
+        {
+            difficulty = 0.12f;
+        }
+        else if (time >= 140)
+        {
+            difficulty = 0.09f;
+        }
 
-        else if (time >= 40 && time < 60) difficulty = 0.24f;
-
-        else if(time >= 60 && time < 80) difficulty = 0.21f;
-
-        else if (time >= 80 && time < 100) difficulty = 0.18f;
-
-        else if (time >= 100 && time < 120) difficulty = 0.15f;
-
-        else if (time >= 120 && time < 140) difficulty = 0.12f;
-
-        else if (time >= 140) difficulty = 0.09f; 
-
+        EnemyMovment.SetTimeToMove(6 * difficulty);
     }
 
-    void Awake()
+    private void Awake()
     {
         Application.targetFrameRate = 120;
 
@@ -195,7 +206,7 @@ public class BoxManage : MonoBehaviour
     {
         time += Time.deltaTime;
 
-        //SetDownUp();
+        SetDownUp();
 
         SetDifficulty();
 

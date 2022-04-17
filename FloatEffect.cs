@@ -10,7 +10,7 @@ public class FloatEffect : MonoBehaviour
 
     private int mode;
 
-    void Start()
+    private void Start()
     {
 
         startY = this.transform.position.y;
@@ -19,37 +19,26 @@ public class FloatEffect : MonoBehaviour
 
     }
 
-    void Update()
+    private void Update()
     {
             if (mode == 0)
             {
                 transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x,
                 startY + ((float)Mathf.Sin(Time.time) * strenght),
                 transform.position.z), 0.3f * Time.deltaTime);
-
-                //transform.position = new Vector3(transform.position.x,
-                //startY + ((float)Mathf.Sin(Time.time) * strenght),
-                //transform.position.z);
             }
             else if (mode == 1)
             {
-            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x,
-            startY - ((float)Mathf.Sin(Time.time) * strenght),
-            transform.position.z), 0.3f * Time.deltaTime);
-
-            //transform.position = new Vector3(transform.position.x,
-            //    startY - ((float)Mathf.Sin(Time.time) * strenght),
-            //    transform.position.z);
+                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x,
+                startY - ((float)Mathf.Sin(Time.time) * strenght),
+                transform.position.z), 0.3f * Time.deltaTime);
             }
             else if (mode == 2)
             {
-            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x,
-            startY - ((float)Mathf.Cos(Time.time) * strenght),
-            transform.position.z), 0.3f * Time.deltaTime);
+                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x,
+                startY - ((float)Mathf.Cos(Time.time) * strenght),
+                transform.position.z), 0.3f * Time.deltaTime);
 
-            //transform.position = new Vector3(transform.position.x,
-            //    startY - ((float)Mathf.Cos(Time.time) * strenght),
-            //    transform.position.z);
             }
     }
 

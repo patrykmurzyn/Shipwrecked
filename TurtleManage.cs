@@ -1,47 +1,23 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
-public class Turtle
-{
-    public int position;
-    public int state; //0 - good, 1 - go down, 2 - go up, 3 - down
-    public GameObject turtleObject;
-    public static List<Turtle> turtles = new List<Turtle>();
-    public static List<int> goDownList = new List<int>();
-    public static List<int> goUpList = new List<int>();
-
-    public static int GetIndex(int position)
-    {
-        for (int i = 0; i < 40; i++)
-        {
-            if (turtles[i].position == position) return i;
-        }
-
-        return -1;
-    }
-}
-
 
 public class TurtleManage : MonoBehaviour
 {
 
-    void CreateTurtleList()
+    private void CreateTurtleList()
     {
         foreach (Transform i in transform)
         {
-            Turtle temp = new Turtle
-            {
-                turtleObject = i.gameObject,
+            Turtle temp = new Turtle();
 
-                state = 0,
-            };
+            temp.SetTurtleObject(i.gameObject);
 
-            Turtle.turtles.Add(temp);
+            temp.SetState(0);
+
+            Turtle.AddTurtles(temp);
         }
     }
      
-    void SetTurtles()
+    private void SetTurtles()
     {
         for(int i = 0; i < 40; i++)
         {
@@ -51,36 +27,42 @@ public class TurtleManage : MonoBehaviour
             {
                 temp = Random.Range(0, 420);
 
-            } while (Box.boxes[Box.availableBoxesPosition[temp]].state != 3);
+            } while (Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetState() != 3);
 
-            Box.boxes[Box.availableBoxesPosition[temp]].state = 4;
+            Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).SetState(4);
 
-            Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position
-                = new Vector3(Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.x, -.8f, Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.z);
+            Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position
+                = new Vector3(Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.x,
+                -.8f,
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.z);
 
-            Turtle.turtles[i].turtleObject.transform.position
-                = new Vector3(Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.x, -.2f, Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.z);
+            Turtle.GetTurtles(i).GetTurtleObject().transform.position
+                = new Vector3(Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.x,
+                -.2f,
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.z);
 
-            Turtle.turtles[i].position = Box.availableBoxesPosition[temp];
+            Turtle.GetTurtles(i).SetPosition(Box.GetAvailableBoxesPosition(temp));
 
-            Turtle.turtles[i].turtleObject.GetComponent<FloatEffect>().SetStartY(-.2f);
+            Turtle.GetTurtles(i).GetTurtleObject().GetComponent<FloatEffect>().SetStartY(-.2f);
 
 
         }
     }
 
-    void GoDown()
+    private void GoDown()
     {
-        for (int i = 0; i < Turtle.goDownList.Count; i++)
+        for (int i = 0; i < Turtle.GetGoDownListSize(); i++)
         {
-            Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position =
-                Vector3.Lerp(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position,
-                new Vector3(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.x, -2f, Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.z),
-                0.3f * Time.deltaTime);
+            Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position =
+                Vector3.Lerp(Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position,
+                    new Vector3(Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position.x,
+                    -2f,
+                    Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position.z),
+                    0.3f * Time.deltaTime);
 
-            if(Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position.y < -.8f)
+            if(Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position.y < -.8f)
             {
-                Turtle.goUpList.Add(Turtle.goDownList[i]);
+                Turtle.AddGoUpList(Turtle.GetGoDownList(i));
 
                 int temp;
 
@@ -88,20 +70,23 @@ public class TurtleManage : MonoBehaviour
                 {
                     temp = Random.Range(0, 420);
                 
-                } while (Box.boxes[Box.availableBoxesPosition[temp]].state != 3);
+                } while (Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetState() != 3);
 
-                Turtle.turtles[Turtle.goDownList[i]].turtleObject.transform.position = new Vector3(Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.x, -1f, Box.boxes[Box.availableBoxesPosition[temp]].boxObject.transform.position.z);
+                Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetTurtleObject().transform.position = 
+                    new Vector3(Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.x,
+                    -1f,
+                    Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetBoxObject().transform.position.z);
                 
-                Box.boxes[Box.availableBoxesPosition[temp]].state = 4;
+                Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).SetState(4);
 
-                Box.boxes[Turtle.turtles[Turtle.goDownList[i]].position].state = 3;
+                Box.GetBoxes(Turtle.GetTurtles(Turtle.GetGoDownList(i)).GetPosition()).SetState(3);
 
-                Turtle.turtles[Turtle.goDownList[i]].position = Box.availableBoxesPosition[temp];
+                Turtle.GetTurtles(Turtle.GetGoDownList(i)).SetPosition(Box.GetAvailableBoxesPosition(temp));
 
-                Turtle.goDownList.RemoveAt(i);
+                Turtle.RemoveGoDownListAt(i);
 
 
-                if (Box.boxes[PlayerManage.playerPosition].state == 3)
+                if (Box.GetBoxes(PlayerManage.GetPlayerPosition()).GetState() == 3)
                 {
                     PlayerManage.SetIsEnd(true);
                 }
@@ -110,20 +95,22 @@ public class TurtleManage : MonoBehaviour
         }
     }
 
-    void GoUp()
+    private void GoUp()
     {
-        for (int i = 0; i < Turtle.goUpList.Count; i++)
+        for (int i = 0; i < Turtle.GetGoUpListSize(); i++)
         {
-            Turtle.turtles[Turtle.goUpList[i]].turtleObject.transform.position =
-                Vector3.Lerp(Turtle.turtles[Turtle.goUpList[i]].turtleObject.transform.position,
-                new Vector3(Turtle.turtles[Turtle.goUpList[i]].turtleObject.transform.position.x, 1f, Turtle.turtles[Turtle.goUpList[i]].turtleObject.transform.position.z),
+            Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().transform.position =
+                Vector3.Lerp(Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().transform.position,
+                new Vector3(Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().transform.position.x, 
+                1f, 
+                Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().transform.position.z),
                 0.3f * Time.deltaTime);
 
-            if(Turtle.turtles[Turtle.goUpList[i]].turtleObject.transform.position.y >= -.2f)
+            if(Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().transform.position.y >= -.2f)
             {
-                Turtle.turtles[Turtle.goUpList[i]].turtleObject.GetComponent<FloatEffect>().enabled = true;
+                Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().GetComponent<FloatEffect>().enabled = true;
 
-                Turtle.goUpList.RemoveAt(i);
+                Turtle.RemoveGoUpListAt(i);
             }
         }
 

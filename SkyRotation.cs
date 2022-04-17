@@ -5,7 +5,7 @@ public class SkyRotation : MonoBehaviour
     [SerializeField]
     private  float speed;
 
-    void Update()
+    private void Update()
     {
         RenderSettings.skybox.SetFloat("_Rotation", speed * Time.time);
     }

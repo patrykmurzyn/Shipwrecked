@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class PlayerManage : MonoBehaviour
 {
-    public static int playerPosition;
-    public static int playerDirection;
-    public static GameObject playerObject;
+    private static int playerPosition;
+    private static int playerDirection;
+    private static int playerPoints;
+    private static int playerPointsSecure;
+    private static GameObject playerObject;
 
     private PlayerAction playerAction;
 
@@ -34,6 +36,42 @@ public class PlayerManage : MonoBehaviour
     private bool isJump = false;
     private bool isFalling = false;
 
+    public static int GetPlayerPosition()
+    {
+        return playerPosition;
+    }
+
+    public static int GetPlayerDirection()
+    {
+        return playerDirection;
+    }
+    public static int GetPlayerPoints()
+    {
+        if (playerPoints + 79 == playerPointsSecure)
+        {
+            return playerPoints;
+        }
+        return playerPointsSecure - 79;    
+    }
+
+    public static void AddPlayerPoint()
+    {
+        if (playerPoints + 79 == playerPointsSecure)
+        {
+            playerPoints++;
+            playerPointsSecure++;
+        } else
+        {
+            playerPoints = playerPointsSecure - 79;
+        }
+        
+    }
+
+    public static GameObject GetPlayerObject()
+    {
+        return playerObject;
+    }
+
     public void SetDuration(float duration)
     {
         this.duration = duration;
@@ -42,11 +80,6 @@ public class PlayerManage : MonoBehaviour
     public static void SetIsEnd(bool option)
     {
         isEnd = option;
-    }
-
-    public int GetDirection()
-    {
-        return playerDirection;
     }
 
     public bool GetIsFalling()
@@ -59,24 +92,29 @@ public class PlayerManage : MonoBehaviour
         this.isFalling = isFalling;
     }
 
-    void Awake()
+    public static float CheckDistanceToPlayer(int position)
+    {
+        return Mathf.Sqrt(Mathf.Pow(playerObject.transform.position.x - Box.GetBoxes(2).GetBoxObject().transform.position.x, 2) + Mathf.Pow((playerObject.transform.position.z - Box.GetBoxes(2).GetBoxObject().transform.position.z), 2));
+    }
+
+    private void Awake()
     {
         playerObject = this.gameObject;
 
         playerAction = new PlayerAction();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         playerAction.Enable();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         playerAction.Disable();
     }
 
-    public void GoUP()
+    private void GoUP()
     {
         isJump = true;
 
@@ -115,34 +153,41 @@ public class PlayerManage : MonoBehaviour
 
             startPos = this.transform.position;
 
-            if (Turtle.GetIndex(playerPosition) != -1)
+            if (Turtle.SearchIndexByPosition(playerPosition) != -1)
             {
-                endPos = Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.transform.position
+                endPos = Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).GetTurtleObject().transform.position
                 + new Vector3(0, 0.6f, 0);
 
-                Turtle.goDownList.Add(Turtle.GetIndex(playerPosition));
+                Turtle.AddGoDownList(Turtle.SearchIndexByPosition(playerPosition));
 
-                Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.GetComponent<FloatEffect>().enabled = false;
+                Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).GetTurtleObject().GetComponent<FloatEffect>().enabled = false;
 
             }
             else
             {
-                endPos = Box.boxes[playerPosition].boxObject.transform.position
+                endPos = Box.GetBoxes(playerPosition).GetBoxObject().transform.position
                 + new Vector3(0, 0.6f, 0);
             }
 
-            if (Box.boxes[playerPosition].state == 3)
+            if (Box.GetBoxes(playerPosition).GetState() == 3)
             {
-                endPos = Box.boxes[playerPosition].boxObject.transform.position
+                endPos = Box.GetBoxes(playerPosition).GetBoxObject().transform.position
                     + new Vector3(0, -1f, 0);
 
                 isEnd = true;
             }
             
+            if(Enemy.IsEnemyOnPosition(playerPosition))
+            {
+                isEnd = true;
+            }
+
+            CoinManage.AddPointIfPlayerIsOnCoin();
+
         }
     }
 
-    public void GoLeft()
+    private void GoLeft()
     {
         if (!isEnd)
         {
@@ -172,7 +217,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    public void GoRight()
+    private void GoRight()
     {
         if (!isEnd)
         {
@@ -202,7 +247,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    void CheckInputs()
+    private void CheckInputs()
     {
         if (playerAction.Player.Up.triggered)
         {
@@ -227,12 +272,12 @@ public class PlayerManage : MonoBehaviour
         do
         {
             temp = Random.Range(0, 420);
-        } while (Box.boxes[temp].state != 0);
+        } while (Box.GetBoxes(temp).GetState() != 0);
 
-        playerPosition = Box.boxes[temp].position;
+        playerPosition = Box.GetBoxes(temp).GetPosition();
         playerDirection = Random.Range(0, 4);
 
-        this.transform.position = Box.boxes[temp].boxObject.transform.position
+        this.transform.position = Box.GetBoxes(temp).GetBoxObject().transform.position
             + new Vector3(0, 0.6f, 0.05f);
 
         if (playerDirection == 0)
@@ -253,7 +298,7 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    public void CheckIfMoveAviable()
+    private void CheckIfMoveAviable()
     {
         if (onMove && preTime == 0) preTime = Time.time;
 
@@ -266,11 +311,11 @@ public class PlayerManage : MonoBehaviour
 
     }
 
-    public void SetJump()
+    private void SetJump()
     {
         preTime = 0;
 
-        if (Turtle.GetIndex(playerPosition) != -1)
+        if (Turtle.SearchIndexByPosition(playerPosition) != -1)
         {
             JumpOnTurtle();
 
@@ -281,22 +326,22 @@ public class PlayerManage : MonoBehaviour
         }
     }
 
-    public void JumpOnTurtle()
+    private void JumpOnTurtle()
     {
         if(!isEnd)
-            transform.position = Vector3.Lerp(transform.position, Turtle.turtles[Turtle.GetIndex(playerPosition)].turtleObject.transform.position
+            transform.position = Vector3.Lerp(transform.position, Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).GetTurtleObject().transform.position
             + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
     }
 
-    public void JumpOnBox()
+    private void JumpOnBox()
     {
         if (!isEnd)
-            transform.position = Vector3.Lerp(transform.position, Box.boxes[playerPosition].boxObject.transform.position
+            transform.position = Vector3.Lerp(transform.position, Box.GetBoxes(playerPosition).GetBoxObject().transform.position
             + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
 
     }
 
-    public void Jump()
+    private void Jump()
     {
         if ((((Time.time - preTime) / duration) <= 1) && onMove)
         {
@@ -322,11 +367,11 @@ public class PlayerManage : MonoBehaviour
             isEndSound = true;
         }
 
-        if (Box.boxes[playerPosition].state != 4 &&
-            Box.boxes[playerPosition].state != 3 &&
-            Box.boxes[playerPosition].boxObject.transform.position.y < -.7f)
+        if (Box.GetBoxes(playerPosition).GetState() != 4 &&
+            Box.GetBoxes(playerPosition).GetState() != 3 &&
+            Box.GetBoxes(playerPosition).GetBoxObject().transform.position.y < -.7f)
         {
-            endPos = Box.boxes[playerPosition].boxObject.transform.position
+            endPos = Box.GetBoxes(playerPosition).GetBoxObject().transform.position
                     + new Vector3(0, -1f, 0);
 
             isEnd = true;
@@ -334,12 +379,12 @@ public class PlayerManage : MonoBehaviour
 
         if(isEnd && !onMove)
         {
-            transform.position = Vector3.Lerp(transform.position, Box.boxes[playerPosition].boxObject.transform.position
+            transform.position = Vector3.Lerp(transform.position, Box.GetBoxes(playerPosition).GetBoxObject().transform.position
             + new Vector3(0, -2f, 0.05f), Time.deltaTime * 1f);
         }
     }
 
-    void Start()
+    private void Start()
     {
         Application.targetFrameRate = 61;
 
@@ -350,6 +395,9 @@ public class PlayerManage : MonoBehaviour
         p = new Parabola(height);
 
         audio = GetComponent<AudioSource>();
+
+        playerPoints = 0;
+        playerPointsSecure = 79;
     }
 
     private void Update()
