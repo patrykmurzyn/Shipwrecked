@@ -21,9 +21,11 @@ public class CoinManage : MonoBehaviour
             Coin.AddCoins(temp);
         }
 
-        for (int i = 0; i < Coin.GetCoinsSize(); i++)
+        for (int i = 0; i < 15; i++)
         {
             Coin.GetCoins(i).SetPosition(Turtle.GetTurtles(i).GetPosition());
+
+            Debug.Log("Coin: " + Coin.GetCoins(i).GetPosition());
 
             Coin.GetCoins(i).GetCoinObject().transform.position = Turtle.GetTurtles(i).GetTurtleObject().transform.position
                 + new Vector3(0f, 0.9f, 0f);
@@ -33,10 +35,11 @@ public class CoinManage : MonoBehaviour
     public static void AddPointIfPlayerIsOnCoin()
     {
         
-        for(int i = 0; i < Coin.GetCoinsSize(); i++)
+        for(int i = 0; i < 15; i++)
         {
-            if(Coin.GetCoins(i).GetPosition() == Box.GetBoxes(PlayerManage.GetPlayerPosition()).GetPosition())
+            if(Coin.GetCoins(i).GetPosition() == PlayerManage.GetPlayerPosition())
             {
+                Debug.Log("CoinPos: " + Coin.GetCoins(i).GetPosition() + ", GetPlayerPosition(): " + Box.GetBoxes(PlayerManage.GetPlayerPosition()).GetPosition());
                 PlayerManage.AddPlayerPoint();
 
                 int turtleIndex;
@@ -46,7 +49,7 @@ public class CoinManage : MonoBehaviour
                     turtleIndex = Random.Range(0, 40);
 
                 } while (Coin.IsCoinOnPosition(Turtle.GetTurtles(turtleIndex).GetPosition())
-                || Turtle.GetTurtles(turtleIndex).GetPosition() == Box.GetBoxes(PlayerManage.GetPlayerPosition()).GetPosition());
+                || Turtle.GetTurtles(turtleIndex).GetState() != 0);
 
                 int newPosition = Turtle.GetTurtles(turtleIndex).GetPosition();
 
