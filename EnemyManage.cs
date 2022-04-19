@@ -25,8 +25,8 @@ public class EnemyManage : MonoBehaviour
             {
                 temp = Random.Range(0, 420);
 
-            } while (Box.GetBoxes(temp).GetState() != 0 &&
-                PlayerManage.CheckDistanceToPlayer(temp) >= 15);
+            } while (Box.GetBoxes(temp).GetState() != 0 ||
+                PlayerManage.CheckDistanceToPlayer(temp) >= 12);
 
             Enemy.GetEnemies(i).GetEnemyObject().transform.position = Box.GetBoxes(temp).GetBoxObject().transform.position
             + new Vector3(0, 0.6f, 0.05f);
