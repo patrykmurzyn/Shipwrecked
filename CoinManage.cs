@@ -21,7 +21,7 @@ public class CoinManage : MonoBehaviour
             Coin.AddCoins(temp);
         }
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < Coin.GetCoinsSize(); i++)
         {
             Coin.GetCoins(i).SetPosition(Turtle.GetTurtles(i).GetPosition());
 
@@ -35,7 +35,7 @@ public class CoinManage : MonoBehaviour
     public static void AddPointIfPlayerIsOnCoin()
     {
         
-        for(int i = 0; i < 15; i++)
+        for(int i = 0; i < Coin.GetCoinsSize(); i++)
         {
             if(Coin.GetCoins(i).GetPosition() == PlayerManage.GetPlayerPosition())
             {
