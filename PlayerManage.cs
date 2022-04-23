@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class PlayerManage : MonoBehaviour
 {
@@ -9,6 +8,8 @@ public class PlayerManage : MonoBehaviour
     private static int playerPoints;
     private static int playerPointsSecure;
     private static GameObject playerObject;
+    [SerializeField]
+    private GameObject[] skins;
 
     private PlayerAction playerAction;
 
@@ -36,6 +37,22 @@ public class PlayerManage : MonoBehaviour
     private bool isJump = false;
     private bool isFalling = false;
 
+    [SerializeField]
+    private GameObject theEndTitle;
+    [SerializeField]
+    private GameObject playAgainButton;
+    [SerializeField]
+    public GameObject homeButton;
+    [SerializeField]
+    public GameObject scoreText;
+    [SerializeField]
+    public GameObject scoreValue;
+    [SerializeField]
+    public GameObject smallScore;
+
+    private bool isCoinsAdded = false;
+
+
     public static int GetPlayerPosition()
     {
         return playerPosition;
@@ -51,7 +68,7 @@ public class PlayerManage : MonoBehaviour
         {
             return playerPoints;
         }
-        return playerPointsSecure - 79;    
+        return playerPointsSecure - 79;
     }
 
     public static void AddPlayerPoint()
@@ -64,7 +81,7 @@ public class PlayerManage : MonoBehaviour
         {
             playerPoints = playerPointsSecure - 79;
         }
-        
+
     }
 
     public static GameObject GetPlayerObject()
@@ -94,7 +111,7 @@ public class PlayerManage : MonoBehaviour
 
     public static float CheckDistanceToPlayer(int position)
     {
-        return Mathf.Sqrt(Mathf.Pow(playerObject.transform.position.x - Box.GetBoxes(2).GetBoxObject().transform.position.x, 2) + Mathf.Pow((playerObject.transform.position.z - Box.GetBoxes(2).GetBoxObject().transform.position.z), 2));
+        return Vector3.Distance(playerObject.transform.position, Box.GetBoxes(position).GetBoxObject().transform.position);
     }
 
     private void Awake()
@@ -160,6 +177,8 @@ public class PlayerManage : MonoBehaviour
 
                 Turtle.AddGoDownList(Turtle.SearchIndexByPosition(playerPosition));
 
+                Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).SetState(1);
+
                 Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).GetTurtleObject().GetComponent<FloatEffect>().enabled = false;
 
             }
@@ -176,8 +195,8 @@ public class PlayerManage : MonoBehaviour
 
                 isEnd = true;
             }
-            
-            if(Enemy.IsEnemyOnPosition(playerPosition))
+
+            if (Enemy.IsEnemyOnPosition(playerPosition))
             {
                 isEnd = true;
             }
@@ -328,7 +347,7 @@ public class PlayerManage : MonoBehaviour
 
     private void JumpOnTurtle()
     {
-        if(!isEnd)
+        if (!isEnd)
             transform.position = Vector3.Lerp(transform.position, Turtle.GetTurtles(Turtle.SearchIndexByPosition(playerPosition)).GetTurtleObject().transform.position
             + new Vector3(0, 0.6f, 0.05f), Time.deltaTime * 10f);
     }
@@ -377,11 +396,39 @@ public class PlayerManage : MonoBehaviour
             isEnd = true;
         }
 
-        if(isEnd && !onMove)
+        if (isEnd && !onMove)
         {
             transform.position = Vector3.Lerp(transform.position, Box.GetBoxes(playerPosition).GetBoxObject().transform.position
             + new Vector3(0, -2f, 0.05f), Time.deltaTime * 1f);
+
+            scoreValue.GetComponent<TextMeshProUGUI>().text = playerPoints.ToString();
+
+            smallScore.SetActive(false);
+            theEndTitle.SetActive(true);
+            playAgainButton.SetActive(true);
+            homeButton.SetActive(true);
+            scoreText.SetActive(true);
+            scoreValue.SetActive(true);
         }
+
+        if(isEnd && !isCoinsAdded)
+        {
+            isCoinsAdded = true;
+
+            GameOver.SaveCoins();
+        }
+
+    }
+
+    public static void Clear()
+    {
+
+        isEnd = false;
+    }
+
+    private void CheckSkin()
+    {
+        skins[EncryptedPlayerPrefs.GetInt("selectedCharacter")].SetActive(true);
     }
 
     private void Start()
@@ -398,6 +445,8 @@ public class PlayerManage : MonoBehaviour
 
         playerPoints = 0;
         playerPointsSecure = 79;
+
+        CheckSkin();
     }
 
     private void Update()

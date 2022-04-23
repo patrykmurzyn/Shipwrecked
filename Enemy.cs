@@ -73,5 +73,10 @@ public class Enemy
         }
         return false;
     }
+
+    public static void ClearList()
+    {
+        enemies.Clear();
+    }
 }
 

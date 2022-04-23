@@ -110,6 +110,8 @@ public class TurtleManage : MonoBehaviour
             {
                 Turtle.GetTurtles(Turtle.GetGoUpList(i)).GetTurtleObject().GetComponent<FloatEffect>().enabled = true;
 
+                Turtle.GetTurtles(Turtle.GetGoUpList(i)).SetState(0);
+
                 Turtle.RemoveGoUpListAt(i);
             }
         }

@@ -75,35 +75,31 @@ public class EnemyMovment : MonoBehaviour
 
         duration = 0.6f;
 
-        if (!isEnd)
-        {
+        preTime = 0;
 
-            preTime = 0;
+        onMove = true;
 
-            onMove = true;
+        if (Enemy.GetEnemies(index).GetDirection() == 0)
 
-            if (Enemy.GetEnemies(index).GetDirection() == 0)
+            Enemy.GetEnemies(index).AddToPosition(-35);
 
-                Enemy.GetEnemies(index).AddToPosition(-35);
+        else if (Enemy.GetEnemies(index).GetDirection() == 1)
 
-            else if (Enemy.GetEnemies(index).GetDirection() == 1)
+            Enemy.GetEnemies(index).AddToPosition(-1);
 
-                Enemy.GetEnemies(index).AddToPosition(-1);
+        else if (Enemy.GetEnemies(index).GetDirection() == 2)
 
-            else if (Enemy.GetEnemies(index).GetDirection() == 2)
+            Enemy.GetEnemies(index).AddToPosition(35);
 
-                Enemy.GetEnemies(index).AddToPosition(35);
+        else if (Enemy.GetEnemies(index).GetDirection() == 3)
 
-            else if (Enemy.GetEnemies(index).GetDirection() == 3)
+        Enemy.GetEnemies(index).AddToPosition(1);
 
-                Enemy.GetEnemies(index).AddToPosition(1);
+        startPos = this.transform.position;
 
-            startPos = this.transform.position;
+        endPos = Box.GetBoxes(Enemy.GetEnemies(index).GetPosition()).GetBoxObject().transform.position
+            + new Vector3(0, 0.6f, 0);
 
-            endPos = Box.GetBoxes(Enemy.GetEnemies(index).GetPosition()).GetBoxObject().transform.position
-                + new Vector3(0, 0.6f, 0);
-
-        }
     }
 
     private void CheckIfMoveAviable()
@@ -138,7 +134,6 @@ public class EnemyMovment : MonoBehaviour
     {
         if ((((Time.time - preTime) / duration) <= 1) && onMove)
         {
-            //Debug.Log("transform: " + this.transform + ", startPos: " + startPos + ", endPos: " + endPos + ", time: " + (Time.time - preTime) / duration);
             p.Move(this.transform, startPos, endPos, (Time.time - preTime) / duration, index);
         }
         else

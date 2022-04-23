@@ -99,4 +99,11 @@ public class Turtle
 
         return -1;
     }
+
+    public static void ClearLists()
+    {
+        turtles.Clear();
+        goDownList.Clear();
+        goUpList.Clear();
+    }
 }

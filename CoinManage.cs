@@ -41,6 +41,8 @@ public class CoinManage : MonoBehaviour
 
                 int turtleIndex;
 
+                int currentPosition = PlayerManage.GetPlayerPosition();
+
                 do
                 {
                     turtleIndex = Random.Range(0, 40);
@@ -55,7 +57,7 @@ public class CoinManage : MonoBehaviour
                 Coin.GetCoins(i).GetCoinObject().transform.position = Turtle.GetTurtles(turtleIndex).GetTurtleObject().transform.position
                     + new Vector3(0f, 0.9f, 0f);
 
-                score.GetComponent<TextMeshProUGUI>().text = "Score: " + PlayerManage.GetPlayerPoints();
+                score.GetComponent<TextMeshProUGUI>().text = PlayerManage.GetPlayerPoints().ToString();
             }
         }
     }

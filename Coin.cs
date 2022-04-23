@@ -51,4 +51,9 @@ public class Coin
 
         return false;
     }
+
+    public static void ClearList()
+    {
+        coins.Clear();
+    }
 }

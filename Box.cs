@@ -125,4 +125,13 @@ public class Box
         return destroyedBoxesPosition[index];
     }
 
+    public static void ClearLists()
+    {
+        boxes.Clear();
+        availableBoxesPosition.Clear();
+        destroyedBoxesPosition.Clear();
+        goDownList.Clear();
+        goUpList.Clear();
+    }
+
 }

@@ -74,10 +74,7 @@ public class BoxManage : MonoBehaviour
                 {
                     temp = Random.Range(0, 420);
                 } while (Box.GetBoxes(Box.GetAvailableBoxesPosition(temp)).GetState() != 0
-                    && Enemy.GetEnemies(0).GetPosition() != temp
-                    && Enemy.GetEnemies(1).GetPosition() != temp
-                    && Enemy.GetEnemies(2).GetPosition() != temp
-                    && Enemy.GetEnemies(3).GetPosition() != temp);
+                    || Enemy.IsEnemyOnPosition(Box.GetAvailableBoxesPosition(temp)));
 
             Box.AddGoDownList(Box.GetAvailableBoxesPosition(temp));
 
